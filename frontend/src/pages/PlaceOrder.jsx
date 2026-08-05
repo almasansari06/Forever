@@ -27,10 +27,15 @@ const PlaceOrder = () => {
   // Profile se saved address aur details auto-fill karne ka logic
   const fetchUserSavedAddress = async () => {
     try {
-      if (!token) return;
+      // Context token ya Direct LocalStorage fallback
+      const activeToken = token || localStorage.getItem('token');
+
+      if (!activeToken) {
+        return;
+      }
 
       const response = await axios.get(backendUrl + '/api/user/get-profile', {
-        headers: { token }
+        headers: { token: activeToken }
       });
 
       if (response.data.success && response.data.user) {
@@ -39,18 +44,17 @@ const PlaceOrder = () => {
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        setFormData(prevData => ({
-          ...prevData,
-          firstName: firstName || prevData.firstName,
-          lastName: lastName || prevData.lastName,
-          email: user.email || prevData.email,
-          street: user.address?.street || prevData.street,
-          city: user.address?.city || prevData.city,
-          state: user.address?.state || prevData.state,
-          zipcode: user.address?.zipcode || prevData.zipcode,
-          country: user.address?.country || prevData.country,
-          phone: user.phone || prevData.phone
-        }));
+        setFormData({
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email || '',
+          street: user.address?.street || '',
+          city: user.address?.city || '',
+          state: user.address?.state || '',
+          zipcode: user.address?.zipcode || '',
+          country: user.address?.country || '',
+          phone: user.phone || ''
+        });
       }
     } catch (error) {
       console.log("Error fetching profile address:", error);
@@ -58,9 +62,7 @@ const PlaceOrder = () => {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchUserSavedAddress();
-    }
+    fetchUserSavedAddress();
   }, [token, backendUrl]);
 
   const onChangeHandler = (e) => {
@@ -81,7 +83,7 @@ const PlaceOrder = () => {
       receipt: order.receipt,
       handler: async (response) => {
         try {
-          const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
+          const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token: token || localStorage.getItem('token') } })
           if (data.success) {
             navigate('/orders')
             setCartItems({})
@@ -114,6 +116,9 @@ const PlaceOrder = () => {
           }
         }
       }
+
+      const activeToken = token || localStorage.getItem('token');
+
       let orderData = {
         address: formData,
         items: orderItems,
@@ -123,7 +128,7 @@ const PlaceOrder = () => {
       switch (method) {
         // API calls for COD
         case 'cod':
-          const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
+          const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token: activeToken } })
 
           if (response.data.success) {
             setCartItems({})
@@ -134,7 +139,7 @@ const PlaceOrder = () => {
           break;
 
         case 'stripe':
-          const responseStripe = await axios.post(backendUrl + '/api/order/stripe', orderData, { headers: { token } })
+          const responseStripe = await axios.post(backendUrl + '/api/order/stripe', orderData, { headers: { token: activeToken } })
           if (responseStripe.data.success) {
             const { session_url } = responseStripe.data
             window.location.replace(session_url)
@@ -144,7 +149,7 @@ const PlaceOrder = () => {
           break;
 
         case 'razorpay':
-          const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
+          const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token: activeToken } })
           if (responseRazorpay.data.success) {
             initPay(responseRazorpay.data.order);
           }
@@ -211,7 +216,9 @@ const PlaceOrder = () => {
           </div>
 
           <div className='w-full text-end mt-8'>
-            <button type='submit' className='bg-black text-white px-16 py-3 text-sm cursor-pointer'>PLACE ORDER</button>
+            <button type='submit' className='bg-black text-white px-16 py-3 text-sm cursor-pointer active:scale-95 transition-all'>
+              PLACE ORDER
+            </button>
           </div>
         </div>
 
