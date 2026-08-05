@@ -108,7 +108,7 @@ const Collection = () => {
               <input className='w-3 cursor-pointer' type="checkbox" value={"Footwear"} onChange={toggleSubCategory} />Footwear
             </p>
             <p className='flex gap-2 cursor-pointer'>
-              <input className='w-3 cursor-pointer' type="checkbox" value={"Jewelry"} onChange={toggleSubCategory} />Jewelry
+              <input className='w-3 cursor-pointer' type="checkbox" value={"Jewelry"} onChange={toggleSubCategory} />jewellery
             </p>
             <p className='flex gap-2 cursor-pointer'>
               <input className='w-3 cursor-pointer' type="checkbox" value={"MakeUp"} onChange={toggleSubCategory} />Makeup
