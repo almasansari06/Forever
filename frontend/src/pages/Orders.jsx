@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const Orders = () => {
 
   const { backendUrl, token, currency } = useContext(ShopContext);
-  const [orderData, setOrderData] = useState([]);
+  const [ordersList, setOrdersList] = useState([]);
 
   const loadOrderData = async () => {
     try {
@@ -21,25 +21,8 @@ const Orders = () => {
       );
 
       if (response.data.success) {
-        let allOrdersItem = [];
-        
-        response.data.orders.forEach((order) => {
-          order.items.forEach((item) => {
-            // New clean object for state stability
-            allOrdersItem.push({
-              ...item,
-              orderId: order._id,
-              status: order.status || 'Order Placed',
-              payment: order.payment,
-              paymentMethod: order.paymentMethod,
-              date: order.date
-            });
-          });
-        });
-
-        setOrderData(allOrdersItem.reverse());
+        setOrdersList(response.data.orders.reverse());
       }
-
     } catch (error) {
       console.log("Error loading orders:", error);
     }
@@ -82,72 +65,66 @@ const Orders = () => {
         <Title text1={'MY '} text2={'ORDERS'} />
       </div>
 
-      <div className='space-y-4'>
-        {orderData.map((item, index) => {
-          // Flexible status check
-          const currentStatus = (item.status || '').toLowerCase();
-          const isCancelled = currentStatus.includes('cancel');
-          const isDelivered = currentStatus.includes('deliver');
-          const canCancel = !isCancelled && !isDelivered;
+      <div className='space-y-6'>
+        {ordersList.map((order, orderIndex) => (
+          <div key={orderIndex} className='border rounded-lg p-4 bg-gray-50/50 space-y-4 shadow-xs'>
+            
+            {/* Order Header Info */}
+            <div className='flex flex-wrap justify-between items-center text-xs text-gray-500 pb-2 border-b gap-2'>
+              <p><span className='font-semibold text-gray-700'>Order ID:</span> {order._id}</p>
+              <p><span className='font-semibold text-gray-700'>Date:</span> {new Date(order.date).toDateString()}</p>
+              <p><span className='font-semibold text-gray-700'>Payment:</span> <span className='uppercase'>{order.paymentMethod}</span></p>
+            </div>
 
-          return (
-            <div key={index} className='py-4 border-t border-b border-gray-200 text-gray-700 flex flex-col md:flex-row md:items-center md:justify-between gap-4'>
-              
-              {/* Product Info */}
-              <div className='flex items-start gap-6 text-sm'>
-                <img className='w-16 sm:w-20 rounded-md object-cover border' src={item.image[0]} alt={item.name} />
-                <div>
-                  <p className='sm:text-base font-medium text-gray-900'>{item.name}</p>
-                  <div className='flex items-center gap-3 mt-1 text-base text-gray-700'>
-                    <p className='font-semibold'>{currency}{item.price}</p>
-                    <p>Quantity: {item.quantity}</p>
-                    <p>Size: {item.size}</p>
-                  </div>
-                  <p className='mt-1 text-xs text-gray-500'>
-                    Date: <span className='text-gray-600'>{new Date(item.date).toDateString()}</span>
-                  </p>
-                  <p className='mt-1 text-xs text-gray-500'>
-                    Payment: <span className='text-gray-600 uppercase font-medium'>{item.paymentMethod}</span>
-                  </p>
+            {/* Items inside this Order */}
+            {order.items.map((item, itemIndex) => (
+              <div key={itemIndex} className='flex items-start gap-4 text-sm bg-white p-3 rounded-md border border-gray-100'>
+                <img className='w-16 h-16 rounded-md object-cover border' src={item.image[0]} alt={item.name} />
+                <div className='flex-1'>
+                  <p className='font-medium text-gray-900'>{item.name}</p>
+                  <p className='text-gray-600 mt-0.5'>{currency}{item.price} | Qty: {item.quantity} | Size: {item.size}</p>
                 </div>
               </div>
+            ))}
 
-              {/* Status and Action Buttons */}
-              <div className='md:w-1/2 flex justify-between items-center gap-3'>
-                
-                {/* Status Indicator */}
-                <div className='flex items-center gap-2 min-w-[120px]'>
-                  <p className={`w-2.5 h-2.5 rounded-full ${isCancelled ? 'bg-red-500' : isDelivered ? 'bg-green-500' : 'bg-amber-500'}`}></p>
-                  <p className={`text-sm sm:text-base font-medium ${isCancelled ? 'text-red-600' : 'text-gray-800'}`}>
-                    {item.status}
-                  </p>
-                </div>
+            {/* Footer with Status and Cancel Button */}
+            <div className='flex flex-wrap justify-between items-center pt-2 gap-3'>
+              
+              {/* Order Status */}
+              <div className='flex items-center gap-2'>
+                <p className={`w-3 h-3 rounded-full ${
+                  order.status === 'Order Cancelled' || order.status === 'Cancelled' ? 'bg-red-500' : 
+                  order.status === 'Delivered' ? 'bg-green-500' : 'bg-amber-500'
+                }`}></p>
+                <p className='font-semibold text-gray-800 text-sm sm:text-base'>
+                  Status: <span className={order.status === 'Order Cancelled' || order.status === 'Cancelled' ? 'text-red-600' : 'text-black'}>{order.status}</span>
+                </p>
+              </div>
 
-                {/* Buttons */}
-                <div className='flex gap-2 items-center'>
-                  <button 
-                    onClick={loadOrderData} 
-                    className='border border-gray-300 px-4 py-2 text-xs sm:text-sm font-medium rounded-md hover:bg-gray-50 active:scale-95 transition-all cursor-pointer'
+              {/* Action Buttons */}
+              <div className='flex items-center gap-3'>
+                <button 
+                  onClick={loadOrderData} 
+                  className='border border-gray-300 px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md hover:bg-gray-100 active:scale-95 transition-all cursor-pointer'
+                >
+                  Track Status
+                </button>
+
+                {/* Cancel Button - Shows if not Delivered or Cancelled */}
+                {order.status !== 'Delivered' && order.status !== 'Order Cancelled' && order.status !== 'Cancelled' && (
+                  <button
+                    onClick={() => cancelOrderHandler(order._id)}
+                    className='bg-red-600 text-white hover:bg-red-700 px-4 py-1.5 text-xs sm:text-sm font-medium rounded-md active:scale-95 transition-all cursor-pointer shadow-xs'
                   >
-                    Track Order
+                    Cancel Order
                   </button>
-
-                  {/* Cancel Button */}
-                  {canCancel && (
-                    <button
-                      onClick={() => cancelOrderHandler(item.orderId)}
-                      className='border border-red-500 text-red-600 hover:bg-red-600 hover:text-white px-3 py-2 text-xs sm:text-sm font-medium rounded-md active:scale-95 transition-all cursor-pointer shadow-xs'
-                    >
-                      Cancel Order
-                    </button>
-                  )}
-                </div>
-
+                )}
               </div>
 
             </div>
-          );
-        })}
+
+          </div>
+        ))}
       </div>
     </div>
   )
