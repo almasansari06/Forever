@@ -19,7 +19,7 @@ const Login = () => {
         if (response.data.success) {
           setToken(response.data.token);
           localStorage.setItem('token', response.data.token);
-          toast.success('Registration successful! 40% discount offer applied.');
+          toast.success('Registration successful! 40% discount applied to your first order.');
         } else {
           toast.error(response.data.message);
         }
@@ -48,10 +48,10 @@ const Login = () => {
   return (
     <form onSubmit={onSubmitHandler} className='flex flex-col items-center w-[90%] sm:max-w-96 m-auto mt-10 gap-4 text-gray-800'>
       
-      {/* Discount Banner Message */}
+      {/* English Discount Banner Message */}
       <div className='w-full bg-gradient-to-r from-purple-50 via-pink-50 to-red-50 border border-pink-200 rounded-xl p-3 text-center shadow-xs'>
         <p className='text-xs font-semibold text-gray-700'>
-          🎉 <span className='text-pink-600 font-bold'>Instagram Offer:</span> Instagram se sign up karein aur 1st order par <span className='text-black font-bold underline decoration-pink-500'>FLAT 40% OFF</span> paayein!
+          🎉 <span className='text-pink-600 font-bold'>Instagram Offer:</span> Sign up with Instagram and get <span className='text-black font-bold underline decoration-pink-500'>FLAT 40% OFF</span> on your 1st order!
         </p>
       </div>
 
