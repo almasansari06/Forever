@@ -52,7 +52,7 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({
             name,
             email,
-            password // Normal plain password
+            password
         });
 
         const user = await newUser.save();
@@ -84,10 +84,16 @@ const adminLogin = async (req, res) => {
     }
 };
 
-// Route for fetching user profile data
+// Route for fetching user profile data (FIXED FOR GET REQUESTS)
 const getUserProfile = async (req, res) => {
     try {
-        const userId = req.body.userId; // Provided via authUser middleware
+        // req.body.userId ya req.userId dono check karein
+        const userId = req.body?.userId || req.userId;
+
+        if (!userId) {
+            return res.json({ success: false, message: "User ID missing from request" });
+        }
+
         const user = await userModel.findById(userId).select('-password');
 
         if (!user) {
@@ -104,8 +110,12 @@ const getUserProfile = async (req, res) => {
 // Route for updating user profile (phone & address)
 const updateUserProfile = async (req, res) => {
     try {
-        const userId = req.body.userId;
+        const userId = req.body?.userId || req.userId;
         const { phone, address } = req.body;
+
+        if (!userId) {
+            return res.json({ success: false, message: "User ID missing from request" });
+        }
 
         await userModel.findByIdAndUpdate(userId, { phone, address });
 
