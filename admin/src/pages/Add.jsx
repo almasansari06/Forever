@@ -18,6 +18,19 @@ const Add = ({ token }) => {
     const [bestseller, setBestseller] = useState(false);
     const [sizes, setSizes] = useState([]);
 
+    // Check kar rahe hain ki kya selected subCategory me size ki zaroorat nahi hai
+    const hideSizes = ['Topwear', 'Bottomwear', 'Winterwear'].includes(subCategory);
+
+    const handleSubCategoryChange = (e) => {
+        const selectedValue = e.target.value;
+        setSubCategory(selectedValue);
+        
+        // Agar sizes hide ho rahe hain, to pehle se selected sizes clear kar do
+        if (['Topwear', 'Bottomwear', 'Winterwear'].includes(selectedValue)) {
+            setSizes([]);
+        }
+    };
+
     const onSubmitHandler = async (e) => {
         e.preventDefault();
 
@@ -30,7 +43,8 @@ const Add = ({ token }) => {
             formData.append('category', category);
             formData.append('subCategory', subCategory);
             formData.append('bestseller', bestseller);
-            formData.append('sizes', JSON.stringify(sizes));
+            // Agar size hide hai to empty array bhejega
+            formData.append('sizes', JSON.stringify(hideSizes ? [] : sizes));
 
             image1 && formData.append('image1', image1);
             image2 && formData.append('image2', image2);
@@ -107,7 +121,7 @@ const Add = ({ token }) => {
                 </div>
                 <div>
                     <p className="mb-2">Sub Category</p>
-                    <select value={subCategory} onChange={(e) => setSubCategory(e.target.value)} className="w-full px-3 py-2">
+                    <select value={subCategory} onChange={handleSubCategoryChange} className="w-full px-3 py-2">
                         <option value="Topwear">Topwear</option>
                         <option value="Bottomwear">Bottomwear</option>
                         <option value="Winterwear">Winterwear</option>
@@ -121,26 +135,29 @@ const Add = ({ token }) => {
                 </div>
             </div>
 
-            <div>
-                <p className="mb-2">Product Sizes</p>
-                <div className="flex gap-3">
-                    <div onClick={() => setSizes((prev) => (prev.includes('S') ? prev.filter((item) => item !== 'S') : [...prev, 'S']))}>
-                        <p className={`${sizes.includes('S') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>S</p>
-                    </div>
-                    <div onClick={() => setSizes((prev) => (prev.includes('M') ? prev.filter((item) => item !== 'M') : [...prev, 'M']))}>
-                        <p className={`${sizes.includes('M') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>M</p>
-                    </div>
-                    <div onClick={() => setSizes((prev) => (prev.includes('L') ? prev.filter((item) => item !== 'L') : [...prev, 'L']))}>
-                        <p className={`${sizes.includes('L') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>L</p>
-                    </div>
-                    <div onClick={() => setSizes((prev) => (prev.includes('XL') ? prev.filter((item) => item !== 'XL') : [...prev, 'XL']))}>
-                        <p className={`${sizes.includes('XL') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XL</p>
-                    </div>
-                    <div onClick={() => setSizes((prev) => (prev.includes('XXL') ? prev.filter((item) => item !== 'XXL') : [...prev, 'XXL']))}>
-                        <p className={`${sizes.includes('XXL') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XXL</p>
+            {/* Condition: Agar Topwear, Bottomwear, ya Winterwear selected hai to ye portion render nahi hoga */}
+            {!hideSizes && (
+                <div>
+                    <p className="mb-2">Product Sizes</p>
+                    <div className="flex gap-3">
+                        <div onClick={() => setSizes((prev) => (prev.includes('S') ? prev.filter((item) => item !== 'S') : [...prev, 'S']))}>
+                            <p className={`${sizes.includes('S') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>S</p>
+                        </div>
+                        <div onClick={() => setSizes((prev) => (prev.includes('M') ? prev.filter((item) => item !== 'M') : [...prev, 'M']))}>
+                            <p className={`${sizes.includes('M') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>M</p>
+                        </div>
+                        <div onClick={() => setSizes((prev) => (prev.includes('L') ? prev.filter((item) => item !== 'L') : [...prev, 'L']))}>
+                            <p className={`${sizes.includes('L') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>L</p>
+                        </div>
+                        <div onClick={() => setSizes((prev) => (prev.includes('XL') ? prev.filter((item) => item !== 'XL') : [...prev, 'XL']))}>
+                            <p className={`${sizes.includes('XL') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XL</p>
+                        </div>
+                        <div onClick={() => setSizes((prev) => (prev.includes('XXL') ? prev.filter((item) => item !== 'XXL') : [...prev, 'XXL']))}>
+                            <p className={`${sizes.includes('XXL') ? 'bg-pink-100' : 'bg-slate-200'} px-3 py-1 cursor-pointer`}>XXL</p>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             <div className="flex gap-2 mt-2">
                 <input onChange={() => setBestseller((prev) => !prev)} checked={bestseller} type="checkbox" id="bestseller" />
