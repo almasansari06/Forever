@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
-}
+    return jwt.sign({ id }, process.env.JWT_SECRET);
+};
 
 // Route for user login
 const loginUser = async (req, res) => {
@@ -27,7 +27,7 @@ const loginUser = async (req, res) => {
         console.log(error);
         res.json({ success: false, message: error.message });
     }
-}
+};
 
 // Route for user registration
 const registerUser = async (req, res) => {
@@ -48,7 +48,7 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a strong password" });
         }
 
-        // Hashing ko hata kar direct plain password save kar rahe hain
+        // Direct plain password save kar rahe hain
         const newUser = new userModel({
             name,
             email,
@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
         console.log(error);
         res.json({ success: false, message: error.message });
     }
-}
+};
 
 // Route for Admin login
 const adminLogin = async (req, res) => {
@@ -82,6 +82,38 @@ const adminLogin = async (req, res) => {
         console.log(error);
         res.json({ success: false, message: error.message });
     }
-}
+};
 
-export { loginUser, registerUser, adminLogin };
+// Route for fetching user profile data
+const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.body.userId; // Provided via authUser middleware
+        const user = await userModel.findById(userId).select('-password');
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, user });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+// Route for updating user profile (phone & address)
+const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        const { phone, address } = req.body;
+
+        await userModel.findByIdAndUpdate(userId, { phone, address });
+
+        res.json({ success: true, message: "Profile updated successfully" });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export { loginUser, registerUser, adminLogin, getUserProfile, updateUserProfile };
