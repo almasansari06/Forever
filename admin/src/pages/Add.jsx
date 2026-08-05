@@ -18,14 +18,14 @@ const Add = ({ token }) => {
     const [bestseller, setBestseller] = useState(false);
     const [sizes, setSizes] = useState([]);
 
-    // Check kar rahe hain ki kis type ke sizes dikhane hain
-    const isClothing = ['Topwear', 'Bottomwear', 'Winterwear'].includes(subCategory);
+    // Innerwear ko clothing sizes array me add kar diya gaya hai
+    const isClothing = ['Topwear', 'Bottomwear', 'Winterwear', 'Innerwear'].includes(subCategory);
     const isFootwear = subCategory === 'Footwear';
 
     const handleSubCategoryChange = (e) => {
         const selectedValue = e.target.value;
         setSubCategory(selectedValue);
-        // Category change hone par purani selected sizes array reset kar rahe hain
+        // Category change hone par pehle se selected sizes reset kar rahe hain
         setSizes([]);
     };
 
@@ -47,7 +47,7 @@ const Add = ({ token }) => {
             formData.append('category', category);
             formData.append('subCategory', subCategory);
             formData.append('bestseller', bestseller);
-            // Agar clothing ya footwear nahi hai (jaise Makeup), to empty array bhejega
+            // Agar clothing ya footwear nahi hai (jaise Makeup ya Jewelry), to empty array bhejega
             formData.append('sizes', JSON.stringify((isClothing || isFootwear) ? sizes : []));
 
             image1 && formData.append('image1', image1);
@@ -129,7 +129,9 @@ const Add = ({ token }) => {
                         <option value="Topwear">Topwear</option>
                         <option value="Bottomwear">Bottomwear</option>
                         <option value="Winterwear">Winterwear</option>
+                        <option value="Innerwear">Innerwear</option>
                         <option value="Footwear">Footwear</option>
+                        <option value="Jewelry">Jewelry</option>
                         <option value="MakeUp">Makeup</option>
                     </select>
                 </div>
@@ -140,7 +142,7 @@ const Add = ({ token }) => {
                 </div>
             </div>
 
-            {/* Clothing Sizes Section */}
+            {/* Clothing & Innerwear Sizes Section */}
             {isClothing && (
                 <div>
                     <p className="mb-2">Product Sizes</p>
