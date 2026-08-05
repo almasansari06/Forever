@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Title from '../components/Title'
 import CartTotal from '../components/CartTotal'
 import { assets } from '../assets/assets'
@@ -7,7 +7,6 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 
 const PlaceOrder = () => {
-
 
   const [method, setMethod] = useState('cod');
 
@@ -24,43 +23,79 @@ const PlaceOrder = () => {
     country: '',
     phone: ''
   })
+
+  // Profile se saved address aur details auto-fill karne ka logic
+  const fetchUserSavedAddress = async () => {
+    try {
+      if (!token) return;
+
+      const response = await axios.get(backendUrl + '/api/user/get-profile', {
+        headers: { token }
+      });
+
+      if (response.data.success) {
+        const { user } = response.data;
+        const nameParts = user.name ? user.name.trim().split(' ') : ['', ''];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        setFormData({
+          firstName: firstName,
+          lastName: lastName,
+          email: user.email || '',
+          street: user.address?.street || '',
+          city: user.address?.city || '',
+          state: user.address?.state || '',
+          zipcode: user.address?.zipcode || '',
+          country: user.address?.country || '',
+          phone: user.phone || ''
+        });
+      }
+    } catch (error) {
+      console.log("Error fetching profile address:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserSavedAddress();
+  }, [token]);
+
   const onChangeHandler = (e) => {
-    const name = event.target.name;
-    const value = event.target.value;
+    const name = e.target.name;
+    const value = e.target.value;
 
     setFormData(data => ({ ...data, [name]: value }))
   }
 
-  const initPay = (order)=>{
-    const options ={
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'Order Payment',
-        description: 'Order Payment',
-        order_id: order.id,
-        receipt: order.receipt,
-        handler: async(response)=>{
-          console.log(response);
-          try {
-            const {data} = await axios.post (backendUrl + '/api/order/verifyRazorpay',response,{headers:{token}})
-            if (data.success) {
-              navigate('/orders')
-              setCartItems({})
-            }
-          } catch (error) {
-            console.log(error);
-            toast.error(error)
-            
+  const initPay = (order) => {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Order Payment',
+      description: 'Order Payment',
+      order_id: order.id,
+      receipt: order.receipt,
+      handler: async (response) => {
+        console.log(response);
+        try {
+          const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
+          if (data.success) {
+            navigate('/orders')
+            setCartItems({})
           }
+        } catch (error) {
+          console.log(error);
+          toast.error(error.message || error)
         }
       }
-      const rzp = new window.Razorpay(options)
-      rzp.open()
+    }
+    const rzp = new window.Razorpay(options)
+    rzp.open()
   }
 
   const onSubmitHandler = async (e) => {
-    event.preventDefault();
+    e.preventDefault();
     try {
 
       let orderItems = []
@@ -96,25 +131,21 @@ const PlaceOrder = () => {
           }
           break;
 
-          case 'stripe':
-            const responseStripe =await axios.post(backendUrl + '/api/order/stripe', orderData, { headers: { token } })
-            if (responseStripe.data.success) {
-              const {session_url} = responseStripe.data
-              window.location.replace(session_url)
-            } else{
-              toast.error(responseStripe.data.message)
-            }
-
+        case 'stripe':
+          const responseStripe = await axios.post(backendUrl + '/api/order/stripe', orderData, { headers: { token } })
+          if (responseStripe.data.success) {
+            const { session_url } = responseStripe.data
+            window.location.replace(session_url)
+          } else {
+            toast.error(responseStripe.data.message)
+          }
           break;
 
-          case 'razorpay':
-
+        case 'razorpay':
           const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
           if (responseRazorpay.data.success) {
             initPay(responseRazorpay.data.order);
-            
           }
-
           break;
 
         default:
@@ -124,10 +155,8 @@ const PlaceOrder = () => {
     } catch (error) {
       console.log(error);
       toast.error(error.message)
-      
     }
   }
-
 
   return (
     <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t'>
@@ -158,13 +187,12 @@ const PlaceOrder = () => {
       <div className='mt-8'>
         <div className='mt-8 min-w-80'>
           <CartTotal />
-
         </div>
 
         <div className='mt-12'>
           <Title text1={'PAYMENT '} text2={'METHOD'} />
 
-          {/* Text payment method selection*/}
+          {/* Payment method selection*/}
           <div className='flex gap-3 flex-col lg:flex-row'>
             <div onClick={() => setMethod('stripe')} className='flex items-center gap-3 border p-2 px-3 cursor-pointer'>
               <p className={`min-w-3.5 h-3.5 border rounded-full ${method === 'stripe' ? 'bg-green-400' : ''}`}></p>
@@ -181,7 +209,7 @@ const PlaceOrder = () => {
           </div>
 
           <div className='w-full text-end mt-8'>
-            <button type='submit' className='bg-black text-white px-16 py-3 text-sm'>PLACE ORDER</button>
+            <button type='submit' className='bg-black text-white px-16 py-3 text-sm cursor-pointer'>PLACE ORDER</button>
           </div>
         </div>
 
