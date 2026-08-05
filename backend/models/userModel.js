@@ -5,8 +5,10 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     cartData: { type: Object, default: {} },
-}, { minimize: false })
+    phone: { type: String, default: "" },
+    address: { type: Object, default: {} } // For storing street, city, state, zipcode, etc.
+}, { minimize: false });
 
-const UserModel = mongoose.models.user || mongoose.model("User", userSchema);
+const userModel = mongoose.models.user || mongoose.model("user", userSchema);
 
-export default UserModel;
+export default userModel;
