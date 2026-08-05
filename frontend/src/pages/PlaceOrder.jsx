@@ -33,23 +33,24 @@ const PlaceOrder = () => {
         headers: { token }
       });
 
-      if (response.data.success) {
-        const { user } = response.data;
+      if (response.data.success && response.data.user) {
+        const user = response.data.user;
         const nameParts = user.name ? user.name.trim().split(' ') : ['', ''];
         const firstName = nameParts[0] || '';
         const lastName = nameParts.slice(1).join(' ') || '';
 
-        setFormData({
-          firstName: firstName,
-          lastName: lastName,
-          email: user.email || '',
-          street: user.address?.street || '',
-          city: user.address?.city || '',
-          state: user.address?.state || '',
-          zipcode: user.address?.zipcode || '',
-          country: user.address?.country || '',
-          phone: user.phone || ''
-        });
+        setFormData(prevData => ({
+          ...prevData,
+          firstName: firstName || prevData.firstName,
+          lastName: lastName || prevData.lastName,
+          email: user.email || prevData.email,
+          street: user.address?.street || prevData.street,
+          city: user.address?.city || prevData.city,
+          state: user.address?.state || prevData.state,
+          zipcode: user.address?.zipcode || prevData.zipcode,
+          country: user.address?.country || prevData.country,
+          phone: user.phone || prevData.phone
+        }));
       }
     } catch (error) {
       console.log("Error fetching profile address:", error);
@@ -57,8 +58,10 @@ const PlaceOrder = () => {
   };
 
   useEffect(() => {
-    fetchUserSavedAddress();
-  }, [token]);
+    if (token) {
+      fetchUserSavedAddress();
+    }
+  }, [token, backendUrl]);
 
   const onChangeHandler = (e) => {
     const name = e.target.name;
@@ -77,7 +80,6 @@ const PlaceOrder = () => {
       order_id: order.id,
       receipt: order.receipt,
       handler: async (response) => {
-        console.log(response);
         try {
           const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
           if (data.success) {
