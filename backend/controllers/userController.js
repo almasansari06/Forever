@@ -3,8 +3,9 @@ import validator from "validator";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// Helper function to create JWT Token
 const createToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET)
+    return jwt.sign({ id }, process.env.JWT_SECRET);
 }
 
 // User Login
@@ -15,26 +16,26 @@ const loginUser = async (req, res) => {
         const user = await userModel.findOne({ email });
 
         if (!user) {
-            return res.json({ success: false, message: "User doesn't exist" })
+            return res.json({ success: false, message: "User doesn't exist" });
         }
 
-        // Account Disabled Check
+        // Check if user account is disabled
         if (user.status === 'disabled') {
-            return res.json({ success: false, message: "Aapka account admin dwara disable/delete kar diya gaya hai. Kripya support se sampark karein." })
+            return res.json({ success: false, message: "Aapka account admin dwara disable kar diya gaya hai. Kripya support se sampark karein." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-            const token = createToken(user._id)
-            res.json({ success: true, token })
+            const token = createToken(user._id);
+            res.json({ success: true, token });
         } else {
-            res.json({ success: false, message: 'Invalid credentials' })
+            res.json({ success: false, message: 'Invalid credentials' });
         }
 
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
 }
 
@@ -45,55 +46,72 @@ const registerUser = async (req, res) => {
 
         const exists = await userModel.findOne({ email });
         if (exists) {
-            return res.json({ success: false, message: "User already exists" })
+            return res.json({ success: false, message: "User already exists" });
         }
 
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a valid email" })
+            return res.json({ success: false, message: "Please enter a valid email" });
         }
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+            return res.json({ success: false, message: "Please enter a strong password" });
         }
 
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(password, salt)
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
         const newUser = new userModel({
             name,
             email,
             password: hashedPassword
-        })
+        });
 
-        const user = await newUser.save()
-        const token = createToken(user._id)
+        const user = await newUser.save();
+        const token = createToken(user._id);
 
-        res.json({ success: true, token })
+        res.json({ success: true, token });
 
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
 }
 
 // Admin Login
 const adminLogin = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = req.body;
         if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
             const token = jwt.sign(email + password, process.env.JWT_SECRET);
-            res.json({ success: true, token })
+            res.json({ success: true, token });
         } else {
-            res.json({ success: false, message: "Invalid credentials" })
+            res.json({ success: false, message: "Invalid credentials" });
         }
     } catch (error) {
         console.log(error);
-        res.json({ success: false, message: error.message })
+        res.json({ success: false, message: error.message });
     }
 }
 
-// --- ADMIN USER MANAGEMENT CONTROLLERS ---
+// Get Logged-in User Profile Data
+const getProfile = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        const userData = await userModel.findById(userId).select('-password');
 
-// Get All Users
+        if (!userData) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        res.json({ success: true, userData });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// --- ADMIN CONTROLLERS ---
+
+// Get All Users List for Admin
 const getAllUsers = async (req, res) => {
     try {
         const users = await userModel.find({}).select('-password');
@@ -109,7 +127,7 @@ const toggleUserStatus = async (req, res) => {
     try {
         const { userId, status } = req.body;
         await userModel.findByIdAndUpdate(userId, { status });
-        res.json({ success: true, message: `User account is now ${status}` });
+        res.json({ success: true, message: `User status updated to ${status}` });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message });
@@ -128,4 +146,12 @@ const deleteUser = async (req, res) => {
     }
 }
 
-export { loginUser, registerUser, adminLogin, getAllUsers, toggleUserStatus, deleteUser }
+export { 
+    loginUser, 
+    registerUser, 
+    adminLogin, 
+    getProfile, 
+    getAllUsers, 
+    toggleUserStatus, 
+    deleteUser 
+};
