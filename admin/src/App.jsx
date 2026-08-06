@@ -10,6 +10,8 @@ import Login from './components/Login'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+console.log("--- ADMIN APP UPDATED SUCCESS ---");
+
 export const backendUrl = import.meta.env.VITE_BACKEND_URL
 export const currency = '$'
 
