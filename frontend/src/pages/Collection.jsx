@@ -31,18 +31,38 @@ const Collection = () => {
   const applyFilter = () => {
     let productsCopy = products.slice(0);
 
+    // Search Filter
     if (showSearch && search) {
       productsCopy = productsCopy.filter(item => item.name.toLowerCase().includes(search.toLowerCase()));
     }
 
+    // Category Filter (Case-Insensitive)
     if (category.length > 0) {
-      productsCopy = productsCopy.filter(item => category.includes(item.category));
+      productsCopy = productsCopy.filter(item => 
+        item.category && category.some(cat => cat.toLowerCase() === item.category.toLowerCase())
+      );
     }
 
+    // SubCategory Filter (Smart Case & Spelling Match)
     if (subCategory.length > 0) {
-      productsCopy = productsCopy.filter(item => subCategory.includes(item.subCategory));
+      productsCopy = productsCopy.filter(item => {
+        if (!item.subCategory) return false;
+        
+        return subCategory.some(subCat => {
+          const filterVal = subCat.toLowerCase();
+          const itemVal = item.subCategory.toLowerCase();
+
+          // Auto-match both 'Jewellery' and 'Jewelry' spellings
+          if (filterVal.includes('jewel') && itemVal.includes('jewel')) {
+            return true;
+          }
+
+          return filterVal === itemVal;
+        });
+      });
     }
 
+    // Sorting
     switch (sortType) {
       case 'low-high':
         productsCopy.sort((a, b) => a.price - b.price);
@@ -86,7 +106,7 @@ const Collection = () => {
           />
         </div>
 
-        {/* Filter Body (Mobile collapsible, Desktop sticky sidebar) */}
+        {/* Filter Body */}
         <div className={`space-y-5 md:block md:sticky md:top-24 ${showFilter ? 'block mt-4' : 'hidden'}`}>
           
           {/* Categories Filter Box */}
@@ -152,7 +172,7 @@ const Collection = () => {
         </div>
       </div>
 
-      {/* Main Content (Right Side) */}
+      {/* Main Content */}
       <div className='flex-1 min-w-0'>
 
         {/* Top Header & Sort Control */}
