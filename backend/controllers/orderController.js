@@ -1,4 +1,3 @@
-//import { currency } from "../../admin/src/App.jsx"
 import orderModel from "../models/orderModel.js"
 import UserModel from "../models/userModel.js"
 import Stripe from "stripe"
@@ -172,37 +171,24 @@ const verifyRazorpay = async (req, res) => {
     }
 }
 
-// Cancel Order by User
+// Cancel Order Controller (User & Admin dono panel se permanent remove karne ke liye)
 const cancelOrder = async (req, res) => {
     try {
         const { orderId } = req.body;
-        const userId = req.body.userId || req.userId;
 
         const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.json({ success: false, message: "Order not found" });
+            return res.json({ success: false, message: "Order not found or already removed" });
         }
 
-        // Security Check: Unique order match
-        if (order.userId.toString() !== userId) {
-            return res.json({ success: false, message: "Unauthorized action" });
-        }
+        // Database se order permanent delete hoga
+        await orderModel.findByIdAndDelete(orderId);
 
-        if (order.status === "Delivered") {
-            return res.json({ success: false, message: "Delivered order cannot be cancelled" });
-        }
-
-        if (order.status === "Order Cancelled" || order.status === "Cancelled") {
-            return res.json({ success: false, message: "Order is already cancelled" });
-        }
-
-        await orderModel.findByIdAndUpdate(orderId, { status: "Order Cancelled" });
-
-        res.json({ success: true, message: "Order cancelled successfully" });
+        res.json({ success: true, message: "Order cancelled and removed successfully" });
 
     } catch (error) {
-        console.log(error);
+        console.log("Error in cancelOrder:", error);
         res.json({ success: false, message: error.message });
     }
 }
