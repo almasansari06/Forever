@@ -37,6 +37,8 @@ const App = () => {
                 <Route path='/list' element={<List token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
                 <Route path='/users' element={<Users token={token} />} />
+                {/* Temporary Test Route */}
+<Route path='/users' element={<h1 className='text-2xl font-bold text-black'>Users Page Working!</h1>} />
               </Routes>
             </div>
           </div>
