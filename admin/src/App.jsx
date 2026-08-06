@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add'
 import List from './pages/List'
 import Orders from './pages/Orders'
-import Users from './pages/Users' // <-- Import name 'Users'
+import Users from './pages/Users' // <--- File name exact 'Users.jsx' honi chahiye
 import Login from './components/Login'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -37,8 +37,6 @@ const App = () => {
                 <Route path='/list' element={<List token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
                 <Route path='/users' element={<Users token={token} />} />
-                {/* Temporary Test Route */}
-<Route path='/users' element={<h1 className='text-2xl font-bold text-black'>Users Page Working!</h1>} />
               </Routes>
             </div>
           </div>
