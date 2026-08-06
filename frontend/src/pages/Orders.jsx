@@ -12,7 +12,6 @@ const Orders = () => {
 
   const loadOrderData = async () => {
     try {
-      // LocalStorage fallback agar context token delayed ho
       const activeToken = token || localStorage.getItem('token');
       if (!activeToken) {
         return null;
@@ -28,7 +27,6 @@ const Orders = () => {
         let allOrdersItem = []
         response.data.orders.forEach((order) => {
           order.items.forEach((item) => {
-            // Unpack item and attach parent order details explicitly
             allOrdersItem.push({
               ...item,
               orderId: order._id,
@@ -50,7 +48,7 @@ const Orders = () => {
   // Cancel Order Handler
   const cancelOrderHandler = async (orderId) => {
     if (!orderId) {
-      toast.error("Order ID not found");
+      toast.error("Invalid Order ID");
       return;
     }
 
@@ -68,13 +66,15 @@ const Orders = () => {
 
       if (response.data.success) {
         toast.success(response.data.message || "Order Cancelled Successfully");
-        loadOrderData(); // Reload list to update status
+        // State se turant filter karke hata dein taaki refresh par wapas na aaye
+        setOrderData(prevData => prevData.filter(item => item.orderId !== orderId));
+        loadOrderData();
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
+      toast.error(error.message || "Failed to cancel order");
     }
   }
 
@@ -118,8 +118,8 @@ const Orders = () => {
                 
                 {/* Order Status Indicator */}
                 <div className='flex items-center gap-2'>
-                  <p className={`min-w-2.5 h-2.5 rounded-full ${item.status === 'Order Cancelled' || item.status === 'Cancelled' ? 'bg-red-500' : 'bg-green-500'}`}></p>
-                  <p className={`text-sm md:text-base font-medium ${item.status === 'Order Cancelled' || item.status === 'Cancelled' ? 'text-red-600' : 'text-gray-700'}`}>
+                  <p className='min-w-2.5 h-2.5 rounded-full bg-green-500'></p>
+                  <p className='text-sm md:text-base font-medium text-gray-700'>
                     {item.status}
                   </p>
                 </div>
@@ -134,14 +134,12 @@ const Orders = () => {
                   </button>
 
                   {/* Red Cancel Order Button */}
-                  {item.status !== 'Order Cancelled' && item.status !== 'Cancelled' && (
-                    <button
-                      onClick={() => cancelOrderHandler(item.orderId)}
-                      className='bg-red-600 text-white hover:bg-red-700 px-3 py-2 text-sm font-medium rounded-sm active:scale-95 transition-all cursor-pointer shadow-xs'
-                    >
-                      Cancel Order
-                    </button>
-                  )}
+                  <button
+                    onClick={() => cancelOrderHandler(item.orderId)}
+                    className='bg-red-600 text-white hover:bg-red-700 px-3 py-2 text-sm font-medium rounded-sm active:scale-95 transition-all cursor-pointer shadow-xs'
+                  >
+                    Cancel Order
+                  </button>
                 </div>
 
               </div>
