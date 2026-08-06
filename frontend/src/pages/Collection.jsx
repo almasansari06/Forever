@@ -132,7 +132,7 @@ const Collection = () => {
                 { label: 'Winterwear', val: 'Winterwear' },
                 { label: 'Innerwear', val: 'Innerwear' },
                 { label: 'Footwear', val: 'Footwear' },
-                { label: 'Jewelry', val: 'Jewelry' },
+                { label: 'Jewellery', val: 'Jewellery' },
                 { label: 'Makeup', val: 'MakeUp' }
               ].map((item) => (
                 <label key={item.val} className='flex items-center gap-3 p-1.5 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group'>
