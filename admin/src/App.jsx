@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from './components/Navbar'
+import Navbar from './components/NavBar' // <--- Yaha 'Navbar' ko 'NavBar' kar diya hai
 import Sidebar from './components/Sidebar'
 import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add'
 import List from './pages/List'
 import Orders from './pages/Orders'
-import Users from './pages/Users' // <--- File name exact 'Users.jsx' honi chahiye
+import Users from './pages/Users'
 import Login from './components/Login'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-console.log("--- ADMIN APP UPDATED SUCCESS ---");
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL
 export const currency = '$'
