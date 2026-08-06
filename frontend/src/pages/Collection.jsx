@@ -18,6 +18,10 @@ const Collection = () => {
     } else {
       setCategory(prev => [...prev, e.target.value]);
     }
+    // Mobile screen par selection ke baad filter menu band ho jayega
+    if (window.innerWidth < 768) {
+      setShowFilter(false);
+    }
   };
 
   const toggleSubCategory = (e) => {
@@ -25,6 +29,10 @@ const Collection = () => {
       setSubCategory(prev => prev.filter(item => item !== e.target.value));
     } else {
       setSubCategory(prev => [...prev, e.target.value]);
+    }
+    // Mobile screen par selection ke baad filter menu band ho jayega
+    if (window.innerWidth < 768) {
+      setShowFilter(false);
     }
   };
 
@@ -106,8 +114,8 @@ const Collection = () => {
           />
         </div>
 
-        {/* Filter Body */}
-        <div className={`space-y-5 md:block md:sticky md:top-24 ${showFilter ? 'block mt-4' : 'hidden'}`}>
+        {/* Filter Body - Scrollable on mobile & closes after select */}
+        <div className={`space-y-5 md:block md:sticky md:top-24 max-h-[60vh] md:max-h-none overflow-y-auto pr-1 ${showFilter ? 'block mt-4' : 'hidden'}`}>
           
           {/* Categories Filter Box */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow'>
