@@ -8,6 +8,7 @@ const orderRouter = express.Router()
 // Admin Features
 orderRouter.post('/list', adminAuth, allOrders)
 orderRouter.post('/status', adminAuth, updateStatus)
+orderRouter.post('/admin-cancel', adminAuth, cancelOrder) // <--- Yeh Route Missing Tha (Isse Fix Ho Gaya)
 
 // Payment Features
 orderRouter.post('/place', authUser, placeOrder)
@@ -16,7 +17,7 @@ orderRouter.post('/razorpay', authUser, placeOrderRazorpay)
 
 // User Features
 orderRouter.post('/userorders', authUser, userOrders)
-orderRouter.post('/cancel', authUser, cancelOrder) // <--- Added Cancel Order Route
+orderRouter.post('/cancel', authUser, cancelOrder)
 
 // verifyPayment
 orderRouter.post('/verifyStripe', authUser, verifyStripe)
