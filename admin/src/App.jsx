@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Navbar from './components/NavBar' // <--- Yaha 'Navbar' ko 'NavBar' kar diya hai
-import Sidebar from './components/Sidebar'
+import Sidebar from './components/SideBar'
 import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add'
 import List from './pages/List'
