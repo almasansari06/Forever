@@ -9,24 +9,26 @@ const Users = ({ token }) => {
 
   const fetchUsers = async () => {
     if (!token) {
-      toast.error("Admin Token Not Found");
+      toast.error("Admin token missing, please login again.");
       setLoading(false);
       return;
     }
     
     try {
-      console.log("Fetching users from:", backendUrl + '/api/user/all-users');
-      const response = await axios.get(backendUrl + '/api/user/all-users', { headers: { token } });
-      
-      console.log("Response from Backend:", response.data);
+      // POST Request send kar rahe hain jaise Baaki Admin routes me hota hai
+      const response = await axios.post(
+        backendUrl + '/api/user/all-users', 
+        {}, 
+        { headers: { token } }
+      );
 
       if (response.data.success) {
         setUsers(response.data.users);
       } else {
-        toast.error(response.data.message || "Failed to load users");
+        toast.error(response.data.message || "Failed to fetch users");
       }
     } catch (error) {
-      console.error("API Error:", error);
+      console.error("Users fetch error:", error);
       toast.error(error.response?.data?.message || error.message);
     } finally {
       setLoading(false);
@@ -82,10 +84,10 @@ const Users = ({ token }) => {
       <h3 className='text-lg font-semibold mb-4'>User Management</h3>
       
       {loading ? (
-        <p className='text-gray-500'>Users data load ho raha hai...</p>
+        <p className='text-gray-500 font-medium'>Users data loading...</p>
       ) : users.length === 0 ? (
-        <div className='p-5 bg-white border border-gray-200 rounded text-gray-500'>
-          Koi user register nahi hua hai ya users array empty hai.
+        <div className='p-5 bg-white border border-gray-200 rounded-md text-gray-500'>
+          Abhi tak koi user register nahi hua hai.
         </div>
       ) : (
         <div className='overflow-x-auto bg-white rounded-lg shadow-xs border border-gray-200'>
