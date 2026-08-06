@@ -5,10 +5,9 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     cartData: { type: Object, default: {} },
-    phone: { type: String, default: "" },
-    address: { type: Object, default: {} } // For storing street, city, state, zipcode, etc.
+    status: { type: String, default: "active" } // Status: 'active' ya 'disabled'
 }, { minimize: false });
 
-const userModel = mongoose.models.user || mongoose.model("user", userSchema);
+const userModel = mongoose.models.user || mongoose.model('user', userSchema);
 
 export default userModel;
