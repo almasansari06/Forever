@@ -18,7 +18,7 @@ const Collection = () => {
     } else {
       setCategory(prev => [...prev, e.target.value]);
     }
-    // Mobile screen par selection ke baad filter menu band ho jayega
+    // Sirf mobile screens par filter auto-close hoga
     if (window.innerWidth < 768) {
       setShowFilter(false);
     }
@@ -30,7 +30,7 @@ const Collection = () => {
     } else {
       setSubCategory(prev => [...prev, e.target.value]);
     }
-    // Mobile screen par selection ke baad filter menu band ho jayega
+    // Sirf mobile screens par filter auto-close hoga
     if (window.innerWidth < 768) {
       setShowFilter(false);
     }
@@ -114,15 +114,15 @@ const Collection = () => {
           />
         </div>
 
-        {/* Filter Body - Scrollable on mobile & closes after select */}
-        <div className={`space-y-5 md:block md:sticky md:top-24 max-h-[60vh] md:max-h-none overflow-y-auto pr-1 ${showFilter ? 'block mt-4' : 'hidden'}`}>
+        {/* Filter Body - Scrollable on both Mobile & PC */}
+        <div className={`space-y-5 md:block md:sticky md:top-24 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar ${showFilter ? 'block mt-4' : 'hidden'}`}>
           
           {/* Categories Filter Box */}
           <div className='bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow'>
             <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-100'>
               <p className='text-xs font-bold text-gray-900 tracking-wider uppercase'>Categories</p>
               {category.length > 0 && (
-                <button onClick={() => setCategory([])} className='text-[11px] text-gray-400 hover:text-black font-medium transition-colors'>
+                <button onClick={() => setCategory([])} className='text-[11px] text-gray-400 hover:text-black font-medium transition-colors cursor-pointer'>
                   Clear
                 </button>
               )}
@@ -148,7 +148,7 @@ const Collection = () => {
             <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-100'>
               <p className='text-xs font-bold text-gray-900 tracking-wider uppercase'>Product Type</p>
               {subCategory.length > 0 && (
-                <button onClick={() => setSubCategory([])} className='text-[11px] text-gray-400 hover:text-black font-medium transition-colors'>
+                <button onClick={() => setSubCategory([])} className='text-[11px] text-gray-400 hover:text-black font-medium transition-colors cursor-pointer'>
                   Clear
                 </button>
               )}
@@ -220,7 +220,7 @@ const Collection = () => {
             <p className='text-gray-400 text-sm mb-4'>Try clearing some filters to see available products.</p>
             <button 
               onClick={() => { setCategory([]); setSubCategory([]); }} 
-              className='px-5 py-2 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors shadow-sm'
+              className='px-5 py-2 bg-black text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors shadow-sm cursor-pointer'
             >
               Reset Filters
             </button>
