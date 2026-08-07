@@ -7,7 +7,6 @@ const MyProfile = () => {
   const { userData, setUserData, token, backendUrl, loadUserProfileData } = useContext(ShopContext);
   const [isEdit, setIsEdit] = useState(false);
 
-  // Profile update API call
   const updateUserProfileData = async () => {
     try {
       const response = await axios.post(
@@ -35,7 +34,6 @@ const MyProfile = () => {
     }
   };
 
-  // 1. Loading Guard: 'undefined' properties read karne se pehle wait karta hai
   if (!userData) {
     return (
       <div className='min-h-[50vh] flex items-center justify-center text-gray-500 font-medium'>
@@ -46,7 +44,6 @@ const MyProfile = () => {
 
   return (
     <div className='max-w-lg flex flex-col gap-4 text-sm pt-5'>
-      {/* Name Section */}
       <div className='flex flex-col gap-1'>
         {isEdit ? (
           <input
@@ -67,7 +64,6 @@ const MyProfile = () => {
 
       <hr className='bg-zinc-200 h-[1px] border-none' />
 
-      {/* Contact Info */}
       <div>
         <p className='text-zinc-500 underline mt-3 font-semibold uppercase'>Contact Information</p>
         <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700'>
@@ -129,7 +125,6 @@ const MyProfile = () => {
         </div>
       </div>
 
-      {/* Basic Info */}
       <div>
         <p className='text-zinc-500 underline mt-3 font-semibold uppercase'>Basic Information</p>
         <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700'>
@@ -168,7 +163,6 @@ const MyProfile = () => {
         </div>
       </div>
 
-      {/* Buttons */}
       <div className='mt-6'>
         {isEdit ? (
           <button
