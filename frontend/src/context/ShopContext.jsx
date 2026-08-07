@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+// Create and export ShopContext
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
@@ -12,7 +13,7 @@ const ShopContextProvider = (props) => {
     const [token, setToken] = useState(localStorage.getItem('token') ? localStorage.getItem('token') : '');
     const [userData, setUserData] = useState(false);
 
-    // Fetch Profile Data
+    // Profile Data Fetcher
     const loadUserProfileData = async () => {
         try {
             const response = await axios.get(backendUrl + '/api/user/get-profile', { headers: { token } });
@@ -27,7 +28,6 @@ const ShopContextProvider = (props) => {
         }
     };
 
-    // ⚠️ CRITICAL FIX: Curly braces {} mandatory hain taaki Promise return na ho
     useEffect(() => {
         if (token) {
             loadUserProfileData();
