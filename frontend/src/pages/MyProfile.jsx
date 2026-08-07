@@ -53,7 +53,10 @@ const MyProfile = () => {
             className='bg-gray-100 text-3xl font-medium max-w-60 p-1 rounded border'
             type="text"
             value={userData.name || ''}
-            onChange={(e) => setUserData((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={(e) => {
+              const val = e.target.value;
+              setUserData((prev) => ({ ...prev, name: val }));
+            }}
           />
         ) : (
           <p className='font-medium text-3xl text-neutral-800 border-b pb-2'>
@@ -77,7 +80,10 @@ const MyProfile = () => {
               className='bg-gray-100 max-w-52 p-1 rounded border'
               type="text"
               value={userData.phone || ''}
-              onChange={(e) => setUserData((prev) => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setUserData((prev) => ({ ...prev, phone: val }));
+              }}
             />
           ) : (
             <p className='text-blue-400'>{userData.phone || "0000000000"}</p>
@@ -88,24 +94,26 @@ const MyProfile = () => {
             <div className='flex flex-col gap-1'>
               <input
                 className='bg-gray-100 p-1 rounded border'
-                onChange={(e) =>
+                onChange={(e) => {
+                  const val = e.target.value;
                   setUserData((prev) => ({
                     ...prev,
-                    address: { ...(prev.address || {}), line1: e.target.value }
-                  }))
-                }
+                    address: { ...(prev.address || {}), line1: val }
+                  }));
+                }}
                 value={userData.address?.line1 || ''}
                 type="text"
                 placeholder="Address Line 1"
               />
               <input
                 className='bg-gray-100 p-1 rounded border'
-                onChange={(e) =>
+                onChange={(e) => {
+                  const val = e.target.value;
                   setUserData((prev) => ({
                     ...prev,
-                    address: { ...(prev.address || {}), line2: e.target.value }
-                  }))
-                }
+                    address: { ...(prev.address || {}), line2: val }
+                  }));
+                }}
                 value={userData.address?.line2 || ''}
                 type="text"
                 placeholder="Address Line 2"
@@ -129,7 +137,10 @@ const MyProfile = () => {
           {isEdit ? (
             <select
               className='max-w-28 bg-gray-100 p-1 rounded border'
-              onChange={(e) => setUserData((prev) => ({ ...prev, gender: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setUserData((prev) => ({ ...prev, gender: val }));
+              }}
               value={userData.gender || 'Not Selected'}
             >
               <option value="Not Selected">Not Selected</option>
@@ -145,7 +156,10 @@ const MyProfile = () => {
             <input
               className='max-w-36 bg-gray-100 p-1 rounded border'
               type="date"
-              onChange={(e) => setUserData((prev) => ({ ...prev, dob: e.target.value }))}
+              onChange={(e) => {
+                const val = e.target.value;
+                setUserData((prev) => ({ ...prev, dob: val }));
+              }}
               value={userData.dob || ''}
             />
           ) : (
@@ -159,14 +173,14 @@ const MyProfile = () => {
         {isEdit ? (
           <button
             onClick={updateUserProfileData}
-            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all'
+            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all cursor-pointer'
           >
             Save information
           </button>
         ) : (
           <button
             onClick={() => setIsEdit(true)}
-            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all'
+            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all cursor-pointer'
           >
             Edit
           </button>
