@@ -146,11 +146,13 @@ const deleteUser = async (req, res) => {
     }
 }
 
+
 export { 
     loginUser, 
     registerUser, 
     adminLogin, 
     getProfile, 
+    updateProfile, // Check karein yeh exported hai ya nahi
     getAllUsers, 
     toggleUserStatus, 
     deleteUser 
