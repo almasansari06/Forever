@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken'
-import userModel from '../models/userModel.js';
+import jwt from 'jsonwebtoken';
 
 const authUser = async (req, res, next) => {
+    // Header se token extract karein
     const { token } = req.headers;
 
     if (!token) {
@@ -10,21 +10,16 @@ const authUser = async (req, res, next) => {
 
     try {
         const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+        
+        // Safety Fix: Agar req.body undefined hai (GET request me), toh pehle object initialize karein
+        if (!req.body) {
+            req.body = {};
+        }
+
         req.body.userId = token_decode.id;
-
-        // Disabled Check for token requests
-        const user = await userModel.findById(token_decode.id);
-        if (!user) {
-            return res.json({ success: false, message: "Account not found" });
-        }
-
-        if (user.status === 'disabled') {
-            return res.json({ success: false, isDisabled: true, message: "Aapka account admin dwara disable kar diya gaya hai." });
-        }
-
         next();
     } catch (error) {
-        console.log(error);
+        console.log("Auth Middleware Error:", error);
         res.json({ success: false, message: error.message });
     }
 }
