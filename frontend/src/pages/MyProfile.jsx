@@ -1,56 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
 const MyProfile = () => {
-  const { token, backendUrl, navigate } = useContext(ShopContext);
-
-  const [userData, setUserData] = useState(null);
+  const { userData, setUserData, token, backendUrl, loadUserProfileData } = useContext(ShopContext);
   const [isEdit, setIsEdit] = useState(false);
 
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState({
-    street: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    country: 'India'
-  });
-
-  const fetchUserProfile = async () => {
+  const updateUserProfileData = async () => {
     try {
-      const activeToken = token || localStorage.getItem('token');
-      const response = await axios.get(backendUrl + '/api/user/get-profile', {
-        headers: { token: activeToken }
-      });
-
-      if (response.data.success) {
-        setUserData(response.data.user);
-        if (response.data.user.phone) setPhone(response.data.user.phone);
-        if (response.data.user.address) setAddress(response.data.user.address);
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
-  };
-
-  const handleUpdateProfile = async () => {
-    try {
-      const activeToken = token || localStorage.getItem('token');
       const response = await axios.post(
         backendUrl + '/api/user/update-profile',
-        { phone, address },
-        { headers: { token: activeToken } }
+        userData,
+        { headers: { token } }
       );
 
       if (response.data.success) {
         toast.success(response.data.message);
+        await loadUserProfileData();
         setIsEdit(false);
-        fetchUserProfile();
       } else {
         toast.error(response.data.message);
       }
@@ -60,158 +28,136 @@ const MyProfile = () => {
     }
   };
 
-  useEffect(() => {
-    const activeToken = token || localStorage.getItem('token');
-    if (activeToken) {
-      fetchUserProfile();
-    } else {
-      navigate('/login');
-    }
-  }, [token]);
-
+  // 1. Loading Guard: Jab tak backend se data na aaye, loading state dikhayein
   if (!userData) {
     return (
-      <div className='flex justify-center items-center py-28'>
-        <div className='w-8 h-8 border-4 border-black border-t-transparent rounded-full animate-spin' />
+      <div className='min-h-[50vh] flex items-center justify-center text-gray-500 font-medium'>
+        Loading profile data...
       </div>
     );
   }
 
   return (
-    <div className='max-w-2xl mx-auto pt-10 px-4 transition-all duration-300'>
-      <div className='inline-flex items-center gap-2 mb-6'>
-        <p className='prata-regular text-2xl sm:text-3xl font-medium'>MY PROFILE</p>
-        <hr className='border-none h-[1.5px] w-8 bg-gray-800' />
+    <div className='max-w-lg flex flex-col gap-4 text-sm pt-5'>
+      <div className='flex flex-col gap-1'>
+        {isEdit ? (
+          <input
+            className='bg-gray-100 text-3xl font-medium max-w-60 p-1 rounded border'
+            type="text"
+            value={userData.name || ''}
+            onChange={(e) => setUserData((prev) => ({ ...prev, name: e.target.value }))}
+          />
+        ) : (
+          <p className='font-medium text-3xl text-neutral-800 border-b pb-2'>
+            {userData.name}
+          </p>
+        )}
       </div>
 
-      <div className='bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs hover:shadow-md transition-shadow duration-300'>
+      <hr className='bg-zinc-200 h-[1px] border-none' />
 
-        {/* User Header Info */}
-        <div className='flex items-center gap-4 pb-6 border-b border-gray-100'>
-          <div className='w-16 h-16 bg-black text-white text-2xl font-bold flex items-center justify-center rounded-full uppercase shadow-md transition-transform duration-300 hover:rotate-6'>
-            {userData.name ? userData.name.charAt(0) : 'U'}
-          </div>
-          <div>
-            <h2 className='text-xl font-bold text-gray-900'>{userData.name}</h2>
-            <p className='text-sm text-gray-500'>{userData.email}</p>
-          </div>
-        </div>
+      <div>
+        <p className='text-zinc-500 underline mt-3 font-semibold uppercase'>Contact Information</p>
+        <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700'>
+          <p className='font-medium'>Email id:</p>
+          <p className='text-blue-500'>{userData.email}</p>
 
-        {/* Contact Info */}
-        <div className='space-y-4'>
-          <p className='text-xs font-bold text-gray-900 uppercase tracking-wider'>Contact Information</p>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm'>
-            <div>
-              <p className='text-gray-400 font-medium text-xs mb-1'>Full Name</p>
-              <p className='text-gray-800 font-medium'>{userData.name}</p>
-            </div>
-            <div>
-              <p className='text-gray-400 font-medium text-xs mb-1'>Email Address</p>
-              <p className='text-gray-800 font-medium'>{userData.email}</p>
-            </div>
-            <div className='sm:col-span-2'>
-              <p className='text-gray-400 font-medium text-xs mb-1'>Phone Number</p>
-              {isEdit ? (
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 9876543210"
-                  className='border border-gray-300 rounded-lg px-3 py-2 w-full outline-none focus:border-black text-sm transition-all duration-150'
-                />
-              ) : (
-                <p className='text-gray-800 font-medium'>{phone || 'Not provided'}</p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <hr className='border-gray-100' />
-
-        {/* Saved Address Section */}
-        <div className='space-y-4'>
-          <p className='text-xs font-bold text-gray-900 uppercase tracking-wider'>Saved Delivery Address</p>
-
+          <p className='font-medium'>Phone:</p>
           {isEdit ? (
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm transition-all duration-300'>
+            <input
+              className='bg-gray-100 max-w-52 p-1 rounded border'
+              type="text"
+              value={userData.phone || ''}
+              onChange={(e) => setUserData((prev) => ({ ...prev, phone: e.target.value }))}
+            />
+          ) : (
+            <p className='text-blue-400'>{userData.phone || "0000000000"}</p>
+          )}
+
+          <p className='font-medium'>Address:</p>
+          {isEdit ? (
+            <div className='flex flex-col gap-1'>
               <input
+                className='bg-gray-100 p-1 rounded border'
+                onChange={(e) =>
+                  setUserData((prev) => ({
+                    ...prev,
+                    address: { ...(prev.address || {}), line1: e.target.value }
+                  }))
+                }
+                value={userData.address?.line1 || ''}
                 type="text"
-                placeholder="Street / House No."
-                value={address.street || ''}
-                onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                className='sm:col-span-2 border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-black'
               />
               <input
+                className='bg-gray-100 p-1 rounded border'
+                onChange={(e) =>
+                  setUserData((prev) => ({
+                    ...prev,
+                    address: { ...(prev.address || {}), line2: e.target.value }
+                  }))
+                }
+                value={userData.address?.line2 || ''}
                 type="text"
-                placeholder="City"
-                value={address.city || ''}
-                onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                className='border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-black'
-              />
-              <input
-                type="text"
-                placeholder="State"
-                value={address.state || ''}
-                onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                className='border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-black'
-              />
-              <input
-                type="text"
-                placeholder="Zipcode / Pincode"
-                value={address.zipcode || ''}
-                onChange={(e) => setAddress({ ...address, zipcode: e.target.value })}
-                className='border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-black'
-              />
-              <input
-                type="text"
-                placeholder="Country"
-                value={address.country || 'India'}
-                onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                className='border border-gray-300 rounded-lg px-3 py-2 outline-none focus:border-black'
               />
             </div>
           ) : (
-            <div className='bg-gray-50/80 p-4 rounded-xl border border-gray-200/60 text-sm text-gray-700 space-y-1 transition-all duration-200'>
-              {address && address.street ? (
-                <>
-                  <p className='font-medium text-gray-900'>{address.street}</p>
-                  <p>{address.city}, {address.state} - {address.zipcode}</p>
-                  <p>{address.country}</p>
-                </>
-              ) : (
-                <p className='text-gray-400 italic'>No default delivery address saved yet.</p>
-              )}
-            </div>
+            <p className='text-gray-500'>
+              {userData.address?.line1 || "No address added"}
+              <br />
+              {userData.address?.line2 || ""}
+            </p>
           )}
         </div>
+      </div>
 
-        {/* Buttons */}
-        <div className='pt-4 flex justify-end gap-3'>
+      <div>
+        <p className='text-zinc-500 underline mt-3 font-semibold uppercase'>Basic Information</p>
+        <div className='grid grid-cols-[1fr_3fr] gap-y-2.5 mt-3 text-neutral-700'>
+          <p className='font-medium'>Gender:</p>
           {isEdit ? (
-            <>
-              <button
-                onClick={() => setIsEdit(false)}
-                className='px-5 py-2 border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer active:scale-95'
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateProfile}
-                className='px-6 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-all cursor-pointer shadow-xs active:scale-95'
-              >
-                Save Changes
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setIsEdit(true)}
-              className='px-6 py-2 border border-black text-black hover:bg-black hover:text-white rounded-lg text-sm font-medium transition-all cursor-pointer active:scale-95'
+            <select
+              className='max-w-28 bg-gray-100 p-1 rounded border'
+              onChange={(e) => setUserData((prev) => ({ ...prev, gender: e.target.value }))}
+              value={userData.gender || 'Not Selected'}
             >
-              Edit Profile & Address
-            </button>
+              <option value="Not Selected">Not Selected</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          ) : (
+            <p className='text-gray-500'>{userData.gender || "Not Selected"}</p>
+          )}
+
+          <p className='font-medium'>Birthday:</p>
+          {isEdit ? (
+            <input
+              className='max-w-36 bg-gray-100 p-1 rounded border'
+              type="date"
+              onChange={(e) => setUserData((prev) => ({ ...prev, dob: e.target.value }))}
+              value={userData.dob || ''}
+            />
+          ) : (
+            <p className='text-gray-500'>{userData.dob || "Not Selected"}</p>
           )}
         </div>
+      </div>
 
+      <div className='mt-6'>
+        {isEdit ? (
+          <button
+            onClick={updateUserProfileData}
+            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all'
+          >
+            Save information
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsEdit(true)}
+            className='border border-black px-8 py-2 rounded-full hover:bg-black hover:text-white transition-all'
+          >
+            Edit
+          </button>
+        )}
       </div>
     </div>
   );
