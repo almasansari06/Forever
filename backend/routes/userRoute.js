@@ -4,6 +4,7 @@ import {
     registerUser, 
     adminLogin, 
     getProfile, 
+    updateProfile,
     getAllUsers, 
     toggleUserStatus, 
     deleteUser 
@@ -13,16 +14,17 @@ import authUser from '../middleware/auth.js';
 
 const userRouter = express.Router();
 
-// Public User Auth Routes
+// User Auth Routes
 userRouter.post('/register', registerUser);
 userRouter.post('/login', loginUser);
 userRouter.post('/admin', adminLogin);
 
-// Protected User Profile Routes (GET aur POST dono support karta hai)
+// Protected User Profile Routes
 userRouter.get('/get-profile', authUser, getProfile);
 userRouter.post('/get-profile', authUser, getProfile);
+userRouter.post('/update-profile', authUser, updateProfile);
 
-// Protected Admin Management Routes
+// Admin User Management Routes
 userRouter.post('/all-users', adminAuth, getAllUsers);
 userRouter.post('/toggle-status', adminAuth, toggleUserStatus);
 userRouter.post('/delete-user', adminAuth, deleteUser);
