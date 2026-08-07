@@ -1,7 +1,7 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './config/mongodb.js'
+import express from 'express';
+import cors from 'cors';
+import 'dotenv/config';
+import connectDB from './config/mongodb.js';
 import connectCloudinary from './config/cloudinary.js';
 import userRouter from './routes/userRoute.js';
 import productRouter from './routes/productRoute.js';
@@ -10,24 +10,25 @@ import orderRouter from './routes/orderRoute.js';
 
 // App Config
 const app = express();
-const port = process.env.PORT || 4000
-connectDB()
-connectCloudinary()
+const port = process.env.PORT || 4000;
+
+// Connect DB and Cloudinary
+connectDB();
+connectCloudinary();
 
 // Middlewares
 app.use(express.json());
 app.use(cors());
 
-// API endpoints
-app.use('/api/user', userRouter)
-app.use ('/api/product', productRouter)
-app.use('/api/cart', cartRouter)
-app.use('/api/order', orderRouter)
+// Api Endpoints
+app.use('/api/user', userRouter);
+app.use('/api/product', productRouter);
+app.use('/api/cart', cartRouter);
+app.use('/api/order', orderRouter);
 
+// Root Route (Isse / par 500 Error aana band ho jayega)
 app.get('/', (req, res) => {
-  res.send('API Working');
+    res.send("API Working");
 });
 
-
-// Start the server
-app.listen(port, () => console.log('Server started on PORT:' + port));
+app.listen(port, () => console.log('Server started on PORT : ' + port));
